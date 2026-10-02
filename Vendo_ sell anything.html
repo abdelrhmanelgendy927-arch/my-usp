@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vendo: sell anything</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F8FF;--ink:#0A0F3D;--muted:#4B5180;--cobalt:#1F2BFF;--sun:#FFD83D;--coral:#FF5A4E;--card:#fff;--line:#D9DCF5;
+--disp:'Bricolage Grotesque','Arial Black',system-ui,sans-serif;--body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A0F3D;--ink:#F2F3FF;--muted:#A9AEDD;--card:#141A55;--line:#2A3290}}
+:root[data-theme="dark"]{--bg:#0A0F3D;--ink:#F2F3FF;--muted:#A9AEDD;--card:#141A55;--line:#2A3290}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--body)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.logo{font:800 26px var(--disp);letter-spacing:-.03em;text-decoration:none}
+.btn{display:inline-block;border:0;border-radius:999px;padding:13px 24px;font:600 16px var(--body);cursor:pointer;text-decoration:none;background:var(--sun);color:#0A0F3D}
+.btn:hover{filter:brightness(.95)}
+.hero{background:var(--cobalt);color:#fff;padding-bottom:72px;border-radius:0 0 40px 40px}
+.hero a{color:#fff}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-top:28px}
+h1{font:800 clamp(44px,7vw,84px)/.95 var(--disp);letter-spacing:-.04em;margin:0 0 20px}
+.lede{font-size:20px;max-width:30ch;margin:0 0 28px;opacity:.92}
+.say{display:flex;align-items:center;gap:12px;background:#fff;color:#0A0F3D;border-radius:18px;padding:8px 8px 8px 20px;max-width:480px}
+.say label{font-weight:600;white-space:nowrap}
+.say input{flex:1;min-width:0;border:0;font:600 18px var(--body);padding:12px 8px;background:transparent;color:inherit;border-radius:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;max-width:480px}
+.chip{border:1.5px solid rgba(255,255,255,.55);background:transparent;color:#fff;border-radius:999px;padding:6px 14px;font:400 15px var(--body);cursor:pointer}
+.chip:hover{background:rgba(255,255,255,.15)}
+.listing{position:relative;background:#fff;color:#0A0F3D;border-radius:26px;padding:16px;box-shadow:0 30px 60px -20px rgba(0,0,40,.55);transform:rotate(2.5deg);animation:rise .7s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes rise{from{transform:translateY(60px) rotate(8deg);opacity:0}}
+.pic{height:210px;border-radius:16px;background:#E8EAFF;display:grid;place-items:center;font-size:104px}
+.listing h2{font:800 26px/1.1 var(--disp);letter-spacing:-.02em;margin:16px 4px 4px;overflow-wrap:anywhere}
+.meta{margin:0 4px;color:#5A6090;font-size:15px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 4px 4px}
+.price{font:800 34px var(--disp);letter-spacing:-.03em}
+.listing input[type=range]{width:100%;margin:6px 0 14px;accent-color:#1F2BFF}
+.listing .btn{width:100%;background:#0A0F3D;color:#fff;text-align:center}
+.stamp{position:absolute;top:62px;left:50%;translate:-50% 0;rotate:-12deg;border:6px solid var(--coral);color:var(--coral);font:800 56px var(--disp);padding:0 18px;border-radius:12px;background:rgba(255,255,255,.88);opacity:0;pointer-events:none}
+.sold .stamp{animation:slam .35s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes slam{from{scale:2.4;opacity:0}to{scale:1;opacity:1}}
+section{padding:84px 0 0}
+h3{font:800 clamp(30px,4.5vw,48px)/1 var(--disp);letter-spacing:-.035em;margin:0 0 12px}
+.sub{color:var(--muted);margin:0 0 32px;max-width:52ch}
+.feed{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.tile{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:16px}
+.tile:nth-child(odd){rotate:-1.5deg}.tile:nth-child(even){rotate:1.5deg}
+.tile b{display:block;font-size:44px;line-height:1.1}
+.tile span{display:block;font-weight:600;margin-top:6px}
+.tile small{color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:28px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;border-top:4px solid var(--cobalt);padding-top:14px}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--sun);color:#0A0F3D;font:800 18px var(--disp);margin-bottom:10px}
+.steps strong{display:block;font:800 22px var(--disp);letter-spacing:-.02em}
+.steps span{color:var(--muted)}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:30px;padding:32px}
+.calc input[type=range]{width:100%;accent-color:#1F2BFF}
+.big{font:800 clamp(44px,8vw,76px)/1 var(--disp);letter-spacing:-.04em;color:var(--cobalt)}
+:root[data-theme="dark"] .big{color:var(--sun)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .big{color:var(--sun)}}
+.cta{text-align:center;background:var(--sun);color:#0A0F3D;border-radius:40px;padding:64px 22px;margin-top:84px}
+.cta h3{margin-bottom:20px}
+.cta .btn{background:#0A0F3D;color:#fff;font-size:18px;padding:16px 32px}
+footer{padding:36px 0 48px;color:var(--muted);font-size:14px;text-align:center}
+@media (max-width:820px){.hero-grid,.calc{grid-template-columns:1fr}.listing{max-width:380px;margin:0 auto}.say{flex-wrap:wrap;border-radius:20px}.say input{flex-basis:100%}}
+@media (prefers-reduced-motion:reduce){.listing,.sold .stamp{animation:none}.sold .stamp{opacity:1}}
+</style>
+</head>
+<body>
+<header class="hero">
+<div class="wrap">
+<nav><a class="logo" href="#">vendo</a><a class="btn" href="#start">Start selling</a></nav>
+<div class="hero-grid">
+<div>
+<h1>Sell anything. Seriously, anything.</h1>
+<p class="lede">List it in 30 seconds. Get paid the moment it sells.</p>
+<div class="say"><label for="item">I'm selling</label><input id="item" placeholder="a vintage guitar" autocomplete="off" maxlength="40"></div>
+<div class="chips" aria-label="Try an example">
+<button class="chip">vintage guitar</button><button class="chip">sourdough starter</button><button class="chip">road bike</button><button class="chip">first edition book</button><button class="chip">couch</button>
+</div>
+</div>
+<article class="listing" id="card" aria-live="polite">
+<div class="pic" id="pic">📦</div>
+<h2 id="title">Your thing here</h2>
+<p class="meta" id="meta">Listed just now · Free to list</p>
+<div class="row"><span class="price" id="price">$120</span></div>
+<input type="range" id="range" min="5" max="2000" step="5" value="120" aria-label="Your price">
+<button class="btn" id="list">List it</button>
+<div class="stamp" aria-hidden="true">SOLD</div>
+</article>
+</div>
+</div>
+</header>
+
+<main class="wrap">
+<section>
+<h3>Sold this week</h3>
+<p class="sub">Real people clearing out real things. Some took under ten minutes.</p>
+<div class="feed">
+<div class="tile"><b>🎸</b><span>Telecaster, 1998</span><small>$640 · 6 min</small></div>
+<div class="tile"><b>🪴</b><span>Monstera cutting</span><small>$18 · 2 hrs</small></div>
+<div class="tile"><b>🚲</b><span>Fixie, size 54</span><small>$210 · 1 day</small></div>
+<div class="tile"><b>📷</b><span>Film camera</span><small>$95 · 40 min</small></div>
+<div class="tile"><b>🛋️</b><span>Green velvet sofa</span><small>$320 · 3 hrs</small></div>
+<div class="tile"><b>👟</b><span>Size 43 sneakers</span><small>$75 · 12 min</small></div>
+</div>
+</section>
+
+<section>
+<h3>Three steps. No forms.</h3>
+<p class="sub">If it takes longer than a coffee, we got it wrong.</p>
+<ol class="steps">
+<li><strong>Snap it</strong><span>Take a photo. We write the title and suggest a category.</span></li>
+<li><strong>Price it</strong><span>Pick your number. Slide it up or down any time.</span></li>
+<li><strong>Ship or meet</strong><span>Buyer pays first. You hand it over, then the money lands.</span></li>
+</ol>
+</section>
+
+<section>
+<h3>Keep what you earn</h3>
+<p class="sub">Listing is free. Vendo takes 4% when it sells. That's it.</p>
+<div class="calc">
+<div>
+<label for="sale"><strong>Selling for <span id="saleOut">$120</span></strong></label>
+<input type="range" id="sale" min="5" max="2000" step="5" value="120">
+</div>
+<div>
+<div class="big" id="keep">$115</div>
+<p class="sub" style="margin:8px 0 0">You keep this. A 13% fee would leave <strong id="other">$104</strong>.</p>
+</div>
+</div>
+</section>
+
+<section class="cta" id="start" style="padding:64px 22px">
+<h3>What's gathering dust at your place?</h3>
+<a class="btn" href="#item" id="go">List your first thing</a>
+</section>
+</main>
+<footer>Vendo is a concept page. Items and prices shown are examples.</footer>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var item=$('item'),title=$('title'),pic=$('pic'),price=$('price'),range=$('range'),card=$('card'),btn=$('list');
+var icons=[[/guitar|piano|drum|violin/,'🎸'],[/car|civic|truck|van/,'🚗'],[/bike|bicycle|fixie/,'🚲'],[/phone|iphone|android/,'📱'],[/laptop|macbook|pc|computer/,'💻'],[/ring|necklace|jewel|watch/,'💍'],[/book|novel|comic/,'📚'],[/shoe|sneaker|boot/,'👟'],[/couch|sofa|chair|table|desk/,'🛋️'],[/camera|lens/,'📷'],[/plant|flower|seed/,'🪴'],[/sourdough|bread|cake|cookie|food/,'🍞'],[/game|console|playstation|xbox/,'🎮'],[/dress|shirt|jacket|coat|hoodie/,'🧥']];
+function show(){
+var v=item.value.trim();
+title.textContent=v?v.charAt(0).toUpperCase()+v.slice(1):'Your thing here';
+var e='📦';
+for(var i=0;i<icons.length;i++){if(icons[i][0].test(v.toLowerCase())){e=icons[i][1];break}}
+pic.textContent=e;
+card.classList.remove('sold');btn.textContent='List it';
+}
+item.addEventListener('input',show);
+range.addEventListener('input',function(){price.textContent='$'+range.value;card.classList.remove('sold');btn.textContent='List it'});
+document.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){item.value=c.textContent;show()})});
+btn.addEventListener('click',function(){
+if(!item.value.trim()){item.focus();return}
+card.classList.add('sold');btn.textContent='Sold in 4 minutes (demo)';
+});
+var sale=$('sale');
+function calc(){var n=+sale.value;$('saleOut').textContent='$'+n;$('keep').textContent='$'+(n*.96).toFixed(0);$('other').textContent='$'+(n*.87).toFixed(0)}
+sale.addEventListener('input',calc);calc();
+})();
+</script>
+</body>
+</html>

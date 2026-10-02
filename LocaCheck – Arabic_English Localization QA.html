@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LocaCheck – Arabic/English Localization QA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceff4;--panel:#f8f9fc;--ink:#0e1b33;--mut:#5b6780;--line:#cfd6e2;--acc:#1f4fd8;--accink:#fff;--err:#c0341d;--warn:#a86400;--info:#2757c8;--field:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c111b;--panel:#121a29;--ink:#e6ebf5;--mut:#93a0ba;--line:#26324a;--acc:#6f95ff;--accink:#0c111b;--err:#ff7b63;--warn:#f0b04a;--info:#8fb0ff;--field:#0c111b}}
+:root[data-theme="dark"]{--bg:#0c111b;--panel:#121a29;--ink:#e6ebf5;--mut:#93a0ba;--line:#26324a;--acc:#6f95ff;--accink:#0c111b;--err:#ff7b63;--warn:#f0b04a;--info:#8fb0ff;--field:#0c111b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif}
+main{max-width:1040px;margin:0 auto;padding:28px 20px 56px}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:0 0 8px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--mut);margin:0 0 28px;max-width:60ch}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+label span{font-weight:400;color:var(--mut)}
+textarea{width:100%;height:260px;resize:vertical;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:12px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace}
+textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 28px}
+button{font:600 14px "IBM Plex Sans Arabic",system-ui,sans-serif;padding:9px 16px;border-radius:4px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accink)}
+#msg{color:var(--err);font-size:14px}
+.stats{display:flex;flex-wrap:wrap;border-top:2px solid var(--ink);border-bottom:1px solid var(--line)}
+.stat{flex:1 1 120px;padding:14px 16px 12px 0;margin-right:16px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-size:34px;line-height:1.1;font-weight:700}
+.stat small{color:var(--mut);font-size:13px}
+.e b{color:var(--err)}.w b{color:var(--warn)}.i b{color:var(--info)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 4px}
+.filters button{padding:5px 12px;font-weight:500}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.row{border-bottom:1px solid var(--line);padding:16px 0 16px 14px;border-left:4px solid var(--line)}
+.row.error{border-left-color:var(--err)}.row.warning{border-left-color:var(--warn)}.row.info{border-left-color:var(--info)}
+.top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+code{font:600 13px ui-monospace,Menlo,Consolas,monospace}
+.sev{font-size:13px;font-weight:600}
+.error .sev{color:var(--err)}.warning .sev{color:var(--warn)}.info .sev{color:var(--info)}
+.row p{margin:4px 0 10px}
+.pair{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+.pair div{padding:8px 12px;overflow-wrap:anywhere;min-height:38px}
+.pair div+div{border-left:1px solid var(--line)}
+.pair .ar{font-size:18px;line-height:1.7}
+.empty{padding:28px 0;color:var(--mut)}
+footer{margin-top:32px;color:var(--mut);font-size:13px}
+@media (max-width:720px){.io,.pair{grid-template-columns:1fr}.pair div+div{border-left:0;border-top:1px solid var(--line)}.stat{border-right:0}}
+</style>
+</head>
+<body>
+<main>
+<h1>LocaCheck</h1>
+<p class="sub">Paste English source strings and their Arabic translation as JSON. LocaCheck flags the mistakes that break apps and confuse readers: lost placeholders, broken tags, untranslated text, wrong punctuation and mixed digits.</p>
+<div class="io">
+<div><label for="src">English source <span>(JSON: "key": "text")</span></label><textarea id="src" spellcheck="false" dir="ltr"></textarea></div>
+<div><label for="tgt">Arabic translation <span>(same keys)</span></label><textarea id="tgt" spellcheck="false" dir="ltr"></textarea></div>
+</div>
+<div class="bar">
+<button class="p" id="run">Check translation</button>
+<button id="sample">Load sample</button>
+<button id="copy">Copy report</button>
+<span id="msg" role="alert"></span>
+</div>
+<div class="stats" id="stats"></div>
+<div class="filters" id="filters"></div>
+<div id="list"></div>
+<footer>Runs entirely in your browser. Nothing is uploaded.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const AR=/[\u0600-\u06FF]/;
+const PH=/\{\{[^}]+\}\}|\{[^}]+\}|%(?:\d+\$)?[sdf]|\$\{[^}]+\}/g;
+const TAG=/<\/?[a-z][^>]*>/gi;
+const strip=x=>x.replace(PH,' ').replace(TAG,' ');
+const SRC={welcome:"Welcome back, {name}!",items_count:"You have %d items in your cart.",checkout:"Proceed to checkout",terms:'I agree to the <b>Terms</b> and <a href="/privacy">Privacy Policy</a>.',error_network:"Network error, please try again.",save:"Save changes",delete_confirm:"Are you sure you want to delete this file?",order_total:"Total: 150 EGP",support:"Need help? Contact support",cancel:"Cancel"};
+const TGT={welcome:"مرحباً بعودتك!",items_count:"لديك %d عناصر في سلة التسوق.",checkout:"Proceed to checkout",terms:'أوافق على <b>الشروط</b> وسياسة الخصوصية.',error_network:"خطأ في الشبكة, يرجى المحاولة مرة أخرى.",save:"حفظ التغييرات",delete_confirm:"هل أنت متأكد من حذف هذا الملف?",order_total:"الإجمالي: ١٥٠ جنيه 150",support:"هل تحتاج إلى مساعدة؟ تواصل مع الدعم الفني  الآن",promo_banner:"خصم خاص"};
+let issues=[],filter='all',summary={total:0,clean:0};
+const parse=id=>{try{const o=JSON.parse($(id).value);if(!o||typeof o!=='object'||Array.isArray(o))throw 0;return o}catch(e){return null}};
+function run(){
+  const s=parse('src'),t=parse('tgt');
+  if(!s||!t){$('msg').textContent='Both boxes must be valid JSON objects, like {"key": "text"}.';return}
+  $('msg').textContent='';issues=[];const bad=new Set();
+  for(const k of Object.keys(s)){
+    const sv=String(s[k]);
+    const add=(sev,m,tv)=>{issues.push({k,sev,m,sv,tv:tv||''});if(sev!=='info')bad.add(k)};
+    if(!(k in t)){add('error','Missing translation: this key is not in the Arabic file.');continue}
+    const tv=String(t[k]),sl=/[A-Za-z]{2,}/.test(strip(sv));
+    if(!tv.trim()){add('error','Translation is empty.',tv);continue}
+    if(tv.trim()===sv.trim()&&sl)add('warning','Untranslated: the Arabic text is identical to the English.',tv);
+    else if(sl&&!AR.test(tv))add('error','No Arabic characters found in the translation.',tv);
+    else if(AR.test(tv)){
+      const body=strip(tv);
+      if(/[?,;]/.test(body))add('info','Latin punctuation in Arabic text. Use ؟ ، ؛ instead of ? , ;',tv);
+      if(/[\u0660-\u0669]/.test(body)&&/[0-9]/.test(body))add('warning','Mixed digit styles: Arabic-Indic (٠-٩) and Western (0-9) in one string.',tv);
+      const lat=body.match(/[A-Za-z]{3,}/g);
+      if(lat)add('info','Latin words left in Arabic text: '+[...new Set(lat)].join(', ')+'. Fine for brand names, otherwise translate.',tv);
+    }
+    const a=(sv.match(PH)||[]).sort().join(' '),b=(tv.match(PH)||[]).sort().join(' ');
+    if(a!==b)add('error','Placeholders differ. Source: '+(a||'none')+' | Translation: '+(b||'none'),tv);
+    const ta=(sv.match(TAG)||[]).map(x=>x.toLowerCase()).sort().join(' '),tb=(tv.match(TAG)||[]).map(x=>x.toLowerCase()).sort().join(' ');
+    if(ta!==tb)add('error','HTML tags differ. Source: '+(ta||'none')+' | Translation: '+(tb||'none'),tv);
+    if(/\s{2,}/.test(tv)||tv!==tv.trim())add('warning','Extra whitespace (double spaces or spaces at the ends).',tv);
+    const e=/[.!?:]$/.exec(sv.trim());
+    if(e){const ex=e[0]==='?'?['؟','?']:[e[0]];if(!ex.some(c=>tv.trim().endsWith(c)))add('info','Source ends with "'+e[0]+'" but the translation does not.',tv)}
+    if(sv.length>=12&&tv.length>sv.length*1.5)add('info','Translation is '+(tv.length/sv.length).toFixed(1)+'× longer than the source. Check for UI overflow.',tv);
+  }
+  for(const k of Object.keys(t))if(!(k in s)){issues.push({k,sev:'warning',m:'Extra key: it exists in the Arabic file but not in the English source.',sv:'',tv:String(t[k])})}
+  const keys=Object.keys(s);
+  summary={total:keys.length,clean:keys.filter(k=>!bad.has(k)).length};
+  const order={error:0,warning:1,info:2};issues.sort((x,y)=>order[x.sev]-order[y.sev]);
+  render();
+}
+function render(){
+  const c=x=>issues.filter(i=>i.sev===x).length;
+  $('stats').innerHTML=`<div class="stat"><b>${summary.total?Math.round(summary.clean/summary.total*100):0}%</b><small>strings with no errors or warnings</small></div><div class="stat"><b>${summary.total}</b><small>source strings</small></div><div class="stat e"><b>${c('error')}</b><small>errors</small></div><div class="stat w"><b>${c('warning')}</b><small>warnings</small></div><div class="stat i"><b>${c('info')}</b><small>notes</small></div>`;
+  $('filters').innerHTML=['all','error','warning','info'].map(f=>`<button data-f="${f}" aria-pressed="${filter===f}">${f==='all'?'All issues':f[0].toUpperCase()+f.slice(1)}</button>`).join('');
+  const list=issues.filter(i=>filter==='all'||i.sev===filter);
+  $('list').innerHTML=list.length?list.map(i=>`<div class="row ${i.sev}"><div class="top"><code>${esc(i.k)}</code><span class="sev">${i.sev}</span></div><p>${esc(i.m)}</p><div class="pair"><div dir="ltr">${esc(i.sv)||'<i>—</i>'}</div><div class="ar" dir="rtl" lang="ar">${esc(i.tv)||'<i>—</i>'}</div></div></div>`).join(''):'<div class="empty">No issues in this view.</div>';
+}
+$('filters').addEventListener('click',e=>{const f=e.target.closest('button');if(f){filter=f.dataset.f;render()}});
+$('run').onclick=run;
+$('sample').onclick=()=>{$('src').value=JSON.stringify(SRC,null,2);$('tgt').value=JSON.stringify(TGT,null,2);filter='all';run()};
+$('copy').onclick=async()=>{
+  const txt=issues.map(i=>`[${i.sev.toUpperCase()}] ${i.k}: ${i.m}`).join('\n')||'No issues found.';
+  try{await navigator.clipboard.writeText(txt);$('copy').textContent='Copied'}catch(e){$('copy').textContent='Copy failed'}
+  setTimeout(()=>$('copy').textContent='Copy report',1500);
+};
+$('sample').click();
+</script>
+</body>
+</html>
